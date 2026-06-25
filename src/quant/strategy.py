@@ -6,20 +6,6 @@ from typing import Any
 import pandas as pd
 from akquant import Strategy
 
-WEAK_REVERSAL = "weak_reversal"
-POSITIVE_LOW_RETURN = "positive_low_return"
-SIGNAL_MODES = {WEAK_REVERSAL, POSITIVE_LOW_RETURN}
-SIGNAL_TABLE_COLUMNS = [
-    "signal_mode",
-    "execution_date",
-    "signal_date",
-    "base_date",
-    "rank",
-    "symbol",
-    "lookback_return",
-    "execution_close",
-]
-
 
 def build_signal_table(
     data: pd.DataFrame,
@@ -28,10 +14,25 @@ def build_signal_table(
     period_end: str,
     lookback_days: int,
     holding_count: int,
-    signal_mode: str = WEAK_REVERSAL,
+    signal_mode: str = "weak_reversal",
 ) -> pd.DataFrame:
-    if signal_mode not in SIGNAL_MODES:
+    if signal_mode == "weak_reversal":
+        positive_only = False
+    elif signal_mode in {"tf_reversal", "positive_low_return"}:
+        positive_only = True
+    else:
         raise ValueError(f"Unsupported signal_mode: {signal_mode!r}")
+
+    signal_table_columns = [
+        "signal_mode",
+        "execution_date",
+        "signal_date",
+        "base_date",
+        "rank",
+        "symbol",
+        "lookback_return",
+        "execution_close",
+    ]
 
     clean_data = data.copy()
     clean_data["date"] = pd.to_datetime(clean_data["date"])
@@ -76,7 +77,7 @@ def build_signal_table(
         )
         candidates = candidates.dropna(subset=["lookback_return", "execution_close"])
         candidates = candidates[candidates["tradable"]]
-        if signal_mode == POSITIVE_LOW_RETURN:
+        if positive_only:
             candidates = candidates[candidates["lookback_return"] > 0]
         candidates = candidates.sort_values(
             ["lookback_return"],
@@ -97,7 +98,7 @@ def build_signal_table(
                 }
             )
 
-    return pd.DataFrame(rows, columns=SIGNAL_TABLE_COLUMNS)
+    return pd.DataFrame(rows, columns=signal_table_columns)
 
 
 def build_market_maps(

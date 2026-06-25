@@ -8,7 +8,6 @@ from akquant import run_backtest
 
 from .strategy import (
     MyStrategy,
-    WEAK_REVERSAL,
     build_market_maps,
     build_signal_table,
     signal_dict,
@@ -52,19 +51,27 @@ def run_period_backtest(
     holding_count: int,
     fill_policy: dict[str, Any],
     slippage: dict[str, Any],
-    signal_mode: str = WEAK_REVERSAL,
+    signal_mode: str = "weak_reversal",
     strategy_name: str | None = None,
 ) -> tuple[PeriodResult, Any, MyStrategy, pd.DataFrame]:
     resolved_strategy_name = strategy_name or signal_mode
+    clean_data = data.copy()
+    clean_data["date"] = pd.to_datetime(clean_data["date"])
+    warmup_start = pd.Timestamp(period_start) - pd.Timedelta(days=90)
+    period_end_timestamp = pd.Timestamp(period_end)
+    backtest_data = clean_data[
+        (clean_data["date"] >= warmup_start)
+        & (clean_data["date"] <= period_end_timestamp)
+    ].reset_index(drop=True)
     signal_table = build_signal_table(
-        data,
+        backtest_data,
         period_start=period_start,
         period_end=period_end,
         lookback_days=lookback_days,
         holding_count=holding_count,
         signal_mode=signal_mode,
     )
-    close_by_date, tradable_by_date = build_market_maps(data)
+    close_by_date, tradable_by_date = build_market_maps(backtest_data)
     strategy = MyStrategy(
         selected_by_date=signal_dict(signal_table),
         close_by_date=close_by_date,
@@ -74,7 +81,7 @@ def run_period_backtest(
         lot_size=lot_size,
     )
     result = run_backtest(
-        data,
+        backtest_data,
         strategy=strategy,
         symbols=list(symbols),
         initial_cash=initial_cash,

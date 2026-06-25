@@ -9,7 +9,6 @@ import pandas as pd
 from .backtest import PeriodResult, run_period_backtest
 from .data_prepare import load_stock_data
 from .result_prepare import write_records
-from .strategy import POSITIVE_LOW_RETURN, WEAK_REVERSAL
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -78,12 +77,12 @@ def main(argv: list[str] | None = None) -> None:
     lot_size = 100
     strategies = (
         (
-            WEAK_REVERSAL,
+            "weak_reversal",
             "rank all tradable stocks by T-1 lookback return and buy the lowest returns",
         ),
         (
-            POSITIVE_LOW_RETURN,
-            "rank only stocks with positive T-1 lookback return and buy the lowest positive returns",
+            "tf_reversal",
+            "apply a positive trend filter, then buy the lowest T-1 lookback returns",
         ),
     )
     fill_policy = {
