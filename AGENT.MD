@@ -22,7 +22,7 @@ uv remove <package>
 
 ```bash
 uv run quant-backtest
-uv run python -m quant
+uv run quant-report
 uv run python <script.py>
 uv run python -m <module>
 ```
