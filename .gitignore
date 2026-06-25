@@ -1,0 +1,16 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+.pytest_cache/
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Local task artifacts, cached market data, and test/backtest records
+artifacts/
+
+tests/
