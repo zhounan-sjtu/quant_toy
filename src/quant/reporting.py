@@ -21,6 +21,10 @@ STRATEGY_LABELS = {
 A_SHARE_UP_RED = "#E60000"
 A_SHARE_DOWN_GREEN = "#009900"
 NEUTRAL_GRAY = "#6b7280"
+EQUITY_CURVE_COLORS = {
+    "weak_reversal": "#0072B2",
+    "tf_reversal": "#D55E00",
+}
 STRATEGY_ORDER = {
     "weak_reversal": 0,
     "tf_reversal": 1,
@@ -464,8 +468,8 @@ def write_equity_chart(records_dir: Path, metrics: pd.DataFrame, path: Path) -> 
         panels.append((period_label, merged.sort_values("date")))
 
     write_series = [
-        ("weak_reversal_index", STRATEGY_LABELS["weak_reversal"], {"2021": A_SHARE_UP_RED, "2022H1": A_SHARE_DOWN_GREEN}),
-        ("tf_reversal_index", STRATEGY_LABELS["tf_reversal"], {"2021": A_SHARE_UP_RED, "2022H1": A_SHARE_UP_RED}),
+        ("weak_reversal_index", STRATEGY_LABELS["weak_reversal"], EQUITY_CURVE_COLORS["weak_reversal"]),
+        ("tf_reversal_index", STRATEGY_LABELS["tf_reversal"], EQUITY_CURVE_COLORS["tf_reversal"]),
     ]
     _write_two_panel_line_chart(
         path,
