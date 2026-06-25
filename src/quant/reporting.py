@@ -18,11 +18,9 @@ STRATEGY_LABELS = {
     "tf_reversal": "Trend-filtered reversal",
     "positive_low_return": "Trend-filtered reversal",
 }
-STRATEGY_COLORS = {
-    "weak_reversal": "#2f6f95",
-    "tf_reversal": "#d05a4e",
-    "positive_low_return": "#d05a4e",
-}
+A_SHARE_UP_RED = "#E60000"
+A_SHARE_DOWN_GREEN = "#009900"
+NEUTRAL_GRAY = "#6b7280"
 STRATEGY_ORDER = {
     "weak_reversal": 0,
     "tf_reversal": 1,
@@ -38,7 +36,7 @@ FUND_BENCHMARKS = {
         "full_label": "沪深300ETF华泰柏瑞",
         "symbol": "sh510300",
         "display_symbol": "510300",
-        "color": "#6b7280",
+        "color": NEUTRAL_GRAY,
         "source": "sina_etf_close",
     },
     "csi_baijiu_lof": {
@@ -46,7 +44,7 @@ FUND_BENCHMARKS = {
         "full_label": "招商中证白酒指数(LOF)A",
         "symbol": "161725",
         "display_symbol": "161725",
-        "color": "#9a6b30",
+        "color": NEUTRAL_GRAY,
         "source": "open_fund_nav",
     },
 }
@@ -66,6 +64,10 @@ def _period_key(period_start: str, period_end: str) -> str:
 def _nice_pct(value: float) -> str:
     sign = "+" if value > 0 else ""
     return f"{sign}{value:.2f}%"
+
+
+def _a_share_return_color(value: float) -> str:
+    return A_SHARE_UP_RED if value >= 0 else A_SHARE_DOWN_GREEN
 
 
 def _svg_text(
@@ -123,6 +125,12 @@ def _polyline(points: Iterable[tuple[float, float]], color: str, width: float = 
         f'<polyline points="{data}" fill="none" stroke="{color}" '
         f'stroke-width="{width:.1f}" stroke-linejoin="round" stroke-linecap="round" />'
     )
+
+
+def _resolve_series_color(color: object, panel_title: str) -> str:
+    if isinstance(color, dict):
+        return str(color.get(panel_title, NEUTRAL_GRAY))
+    return str(color)
 
 
 def _document(width: int, height: int, body: list[str]) -> str:
@@ -359,7 +367,7 @@ def write_return_chart(metrics: pd.DataFrame, path: Path) -> None:
         y = _scale(value, y_min, y_max, top + plot_h, top)
         bar_y = min(y, zero_y)
         bar_h = abs(zero_y - y)
-        color = STRATEGY_COLORS.get(str(row.strategy_name), "#667085")
+        color = _a_share_return_color(value)
         body.append(_rect(x, bar_y, bar_w, max(bar_h, 1.0), color))
         body.append(_svg_text(x + bar_w / 2, bar_y - 10, _nice_pct(value), size=13, fill=color, anchor="middle", weight="700"))
         body.append(_svg_text(x + bar_w / 2, top + plot_h + 28, row.period_label, size=12, fill="#53606b", anchor="middle"))
@@ -375,7 +383,7 @@ def _write_two_panel_line_chart(
     title: str,
     subtitle: str,
     panels: list[tuple[str, pd.DataFrame]],
-    series: list[tuple[str, str, str]],
+    series: list[tuple[str, str, object]],
     *,
     y_label: str,
     baseline: float | None = None,
@@ -417,19 +425,21 @@ def _write_two_panel_line_chart(
             body.append(_dashed_line(x0, baseline_y, x0 + panel_w, baseline_y, "#111827", 1.2))
 
         for column, label, color in series:
+            resolved_color = _resolve_series_color(color, panel_title)
             points: list[tuple[float, float]] = []
             for row in data[["date", column]].dropna().itertuples(index=False):
                 x = _scale(pd.Timestamp(row.date).toordinal(), date_min.toordinal(), date_max.toordinal(), x0, x0 + panel_w)
                 y = _scale(float(getattr(row, column)), value_min, value_max, y0 + panel_h, y0)
                 points.append((x, y))
-            body.append(_polyline(points, color, 2.5))
+            body.append(_polyline(points, resolved_color, 2.5))
 
         legend_x = x0 + 14
         legend_y = y0 + 18
         legend_step = min(158.0, max(80.0, (panel_w - 60.0) / max(1, len(series))))
         for idx, (_column, label, color) in enumerate(series):
+            resolved_color = _resolve_series_color(color, panel_title)
             lx = legend_x + idx * legend_step
-            body.append(_line(lx, legend_y, lx + 24, legend_y, color, 3.0))
+            body.append(_line(lx, legend_y, lx + 24, legend_y, resolved_color, 3.0))
             body.append(_svg_text(lx + 32, legend_y + 4, label, size=12, fill="#394752"))
         if baseline is not None and baseline_label:
             lx = legend_x + len(series) * legend_step
@@ -454,8 +464,8 @@ def write_equity_chart(records_dir: Path, metrics: pd.DataFrame, path: Path) -> 
         panels.append((period_label, merged.sort_values("date")))
 
     write_series = [
-        ("weak_reversal_index", STRATEGY_LABELS["weak_reversal"], STRATEGY_COLORS["weak_reversal"]),
-        ("tf_reversal_index", STRATEGY_LABELS["tf_reversal"], STRATEGY_COLORS["tf_reversal"]),
+        ("weak_reversal_index", STRATEGY_LABELS["weak_reversal"], {"2021": A_SHARE_UP_RED, "2022H1": A_SHARE_DOWN_GREEN}),
+        ("tf_reversal_index", STRATEGY_LABELS["tf_reversal"], {"2021": A_SHARE_UP_RED, "2022H1": A_SHARE_UP_RED}),
     ]
     _write_two_panel_line_chart(
         path,
@@ -483,7 +493,7 @@ def write_benchmark_comparison_chart(metrics: pd.DataFrame, path: Path) -> None:
                 "period_label": period_label,
                 "label": "HS300 ETF",
                 "value": float(first["hs300_etf_return_pct"]),
-                "color": FUND_BENCHMARKS["hs300_etf"]["color"],
+                "color": _a_share_return_color(float(first["hs300_etf_return_pct"])),
             }
         )
         bars.append(
@@ -491,7 +501,7 @@ def write_benchmark_comparison_chart(metrics: pd.DataFrame, path: Path) -> None:
                 "period_label": period_label,
                 "label": "Baijiu LOF",
                 "value": float(first["csi_baijiu_lof_return_pct"]),
-                "color": FUND_BENCHMARKS["csi_baijiu_lof"]["color"],
+                "color": _a_share_return_color(float(first["csi_baijiu_lof_return_pct"])),
             }
         )
         for row in group.itertuples(index=False):
@@ -501,7 +511,7 @@ def write_benchmark_comparison_chart(metrics: pd.DataFrame, path: Path) -> None:
                     "period_label": period_label,
                     "label": short_label,
                     "value": float(row.total_return_pct),
-                    "color": STRATEGY_COLORS.get(str(row.strategy_name), "#667085"),
+                    "color": _a_share_return_color(float(row.total_return_pct)),
                 }
             )
 
@@ -528,12 +538,13 @@ def write_benchmark_comparison_chart(metrics: pd.DataFrame, path: Path) -> None:
     for group_idx, (period_label, group) in enumerate(metrics.groupby("period_label", sort=False)):
         group_x = left + group_idx * (group_w + group_gap)
         group_bars = [
-            ("HS300 ETF", float(group.iloc[0]["hs300_etf_return_pct"]), FUND_BENCHMARKS["hs300_etf"]["color"]),
-            ("Baijiu LOF", float(group.iloc[0]["csi_baijiu_lof_return_pct"]), FUND_BENCHMARKS["csi_baijiu_lof"]["color"]),
+            ("HS300 ETF", float(group.iloc[0]["hs300_etf_return_pct"]), _a_share_return_color(float(group.iloc[0]["hs300_etf_return_pct"]))),
+            ("Baijiu LOF", float(group.iloc[0]["csi_baijiu_lof_return_pct"]), _a_share_return_color(float(group.iloc[0]["csi_baijiu_lof_return_pct"]))),
         ]
         for row in group.itertuples(index=False):
             label = "WR" if str(row.strategy_name) == "weak_reversal" else "TFR"
-            group_bars.append((label, float(row.total_return_pct), STRATEGY_COLORS.get(str(row.strategy_name), "#667085")))
+            value = float(row.total_return_pct)
+            group_bars.append((label, value, _a_share_return_color(value)))
 
         total_bars_w = len(group_bars) * bar_w + (len(group_bars) - 1) * bar_gap
         start_x = group_x + (group_w - total_bars_w) / 2
@@ -591,7 +602,7 @@ def write_risk_chart(metrics: pd.DataFrame, path: Path) -> None:
             y = _scale(value, y_min, y_max, top + panel_h, top)
             bar_y = min(y, zero_y)
             bar_h = abs(zero_y - y)
-            color = STRATEGY_COLORS.get(str(row.strategy_name), "#667085")
+            color = _a_share_return_color(value) if column == "sharpe_ratio" else A_SHARE_DOWN_GREEN
             body.append(_rect(x, bar_y, bar_w, max(bar_h, 1.0), color, opacity=0.9))
             label = f"{value:.2f}{suffix}" if suffix else f"{value:.2f}"
             body.append(_svg_text(x + bar_w / 2, bar_y - 9, label, size=11, fill=color, anchor="middle", weight="700"))
@@ -623,8 +634,8 @@ def write_sector_chart(data: pd.DataFrame, path: Path) -> None:
     group_w = (plot_w - group_gap * (group_count - 1)) / group_count
     bar_w = 76
     bar_gap = 18
-    up_color = "#2f6f95"
-    down_color = "#d05a4e"
+    up_color = A_SHARE_UP_RED
+    down_color = A_SHARE_DOWN_GREEN
     for idx, row in enumerate(summary.itertuples(index=False)):
         group_x = left + idx * (group_w + group_gap)
         bars = [

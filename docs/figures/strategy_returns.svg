@@ -13,20 +13,20 @@
 <text x="64.0" y="157.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#64727e" text-anchor="end">25%</text>
 <line x1="74.0" y1="78.0" x2="946.0" y2="78.0" stroke="#e6ebef" stroke-width="1.0" />
 <text x="64.0" y="82.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#64727e" text-anchor="end">35%</text>
-<rect x="74.0" y="114.3" width="90.0" height="226.2" rx="2.0" fill="#2f6f95" opacity="1.00" />
-<text x="119.0" y="104.3" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#2f6f95" text-anchor="middle">+30.16%</text>
+<rect x="74.0" y="114.3" width="90.0" height="226.2" rx="2.0" fill="#E60000" opacity="1.00" />
+<text x="119.0" y="104.3" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#E60000" text-anchor="middle">+30.16%</text>
 <text x="119.0" y="406.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#53606b" text-anchor="middle">2021</text>
 <text x="119.0" y="426.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#27313a" text-anchor="middle">Weak reversal</text>
-<rect x="334.7" y="201.4" width="90.0" height="139.1" rx="2.0" fill="#d05a4e" opacity="1.00" />
-<text x="379.7" y="191.4" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#d05a4e" text-anchor="middle">+18.55%</text>
+<rect x="334.7" y="201.4" width="90.0" height="139.1" rx="2.0" fill="#E60000" opacity="1.00" />
+<text x="379.7" y="191.4" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#E60000" text-anchor="middle">+18.55%</text>
 <text x="379.7" y="406.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#53606b" text-anchor="middle">2021</text>
 <text x="379.7" y="426.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#27313a" text-anchor="middle">Trend-filtered reversal</text>
-<rect x="595.3" y="340.5" width="90.0" height="1.0" rx="2.0" fill="#2f6f95" opacity="1.00" />
-<text x="640.3" y="330.5" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#2f6f95" text-anchor="middle">-0.00%</text>
+<rect x="595.3" y="340.5" width="90.0" height="1.0" rx="2.0" fill="#009900" opacity="1.00" />
+<text x="640.3" y="330.5" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#009900" text-anchor="middle">-0.00%</text>
 <text x="640.3" y="406.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#53606b" text-anchor="middle">2022H1</text>
 <text x="640.3" y="426.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#27313a" text-anchor="middle">Weak reversal</text>
-<rect x="856.0" y="181.9" width="90.0" height="158.6" rx="2.0" fill="#d05a4e" opacity="1.00" />
-<text x="901.0" y="171.9" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#d05a4e" text-anchor="middle">+21.15%</text>
+<rect x="856.0" y="181.9" width="90.0" height="158.6" rx="2.0" fill="#E60000" opacity="1.00" />
+<text x="901.0" y="171.9" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#E60000" text-anchor="middle">+21.15%</text>
 <text x="901.0" y="406.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#53606b" text-anchor="middle">2022H1</text>
 <text x="901.0" y="426.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" fill="#27313a" text-anchor="middle">Trend-filtered reversal</text>
 <line x1="74.0" y1="78.0" x2="74.0" y2="378.0" stroke="#bcc7cf" stroke-width="1.0" />
